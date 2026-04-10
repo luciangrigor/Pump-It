@@ -7,6 +7,10 @@ export default function RootLayout() {
   <BleProvider>
     <Stack>
       <Stack.Screen
+        name='signIn'
+        options={{ headerShown: false}}
+      />
+      <Stack.Screen
         name="(tabs)"
         options={{ headerShown: false}}
       />

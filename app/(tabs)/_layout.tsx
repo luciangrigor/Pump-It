@@ -6,7 +6,7 @@ import { Image, Text, View } from 'react-native';
 const TabIcon = ({ focused, icon, title }: any) => {
     if(focused)
         return (
-            <View className=" flex-1 flex justify-center items-center w-20 mt-2">
+            <View className=" flex-1 flex justify-center items-center w-20 mt-4">
                 <Image source={icon}/>
                 <Text className="text-['#eef1ea'] font-medium text-xs">{title}</Text>
                 <View className="h-1 w-8 bg-white rounded-full" />
@@ -14,10 +14,9 @@ const TabIcon = ({ focused, icon, title }: any) => {
         )
     else
         return (
-            <View className="flex-1 justify-center items-center w-20 mt-3.5  ">
+            <View className="flex-1 justify-center items-center w-20 mt-4  ">
                 <Image source={icon}/> 
                 <Text className="text-['#878782'] text-xs">{title}</Text>
-
             </View>
         )
 }
