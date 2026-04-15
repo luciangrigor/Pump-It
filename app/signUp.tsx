@@ -5,9 +5,6 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -38,9 +35,17 @@ const SignUp = () => {
     try {
       await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
-      router.replace('/(tabs)');
+      Alert.alert(
+        'Welcome to Pump It!',
+        'Set up your health profile so the app can detect heart rate abnormalities accurately.',
+        [
+          { text: 'Later', onPress: () => router.replace('/(tabs)/home') },
+          { text: 'Set Up Now', onPress: () => router.replace('/(tabs)/profile') },
+        ]
+      );
     } catch (error: any) {
       Alert.alert('Sign Up Failed', error.message || 'Something went wrong');
+      router.replace('/signUp');
     } finally {
       setLoading(false);
     }
@@ -48,19 +53,15 @@ const SignUp = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={{ flex: 1 }}>
 
           {/* Header */}
           <View className="px-6 pt-10 pb-5">
-            <TouchableOpacity onPress={() => router.back()} className="mb-6">
+            <TouchableOpacity onPress={() => router.replace('/home')} className="mb-6">
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <Text className="text-white text-3xl font-bold">Create Account</Text>
-            <Text className="text-zinc-400 mt-2">Join Pump It today</Text>
+            <Text className="text-zinc-400 mt-2">Enter your details:</Text>
           </View>
 
           {/* Form */}
@@ -145,8 +146,7 @@ const SignUp = () => {
             </TouchableOpacity>
 
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
     </SafeAreaView>
   );
 };

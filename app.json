@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/logo.png",
+    "backgroundColor": "#190408",
     "scheme": "pumpit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -26,6 +27,7 @@
         "foregroundImage": "./assets/icons/logo.png"
       },
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "pan",
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.BLUETOOTH",

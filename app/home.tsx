@@ -1,5 +1,5 @@
-import { login } from '@/lib/appwrite';
 import { images } from "@/constants/images";
+import { account, login } from '@/lib/appwrite';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -15,9 +15,26 @@ const SignIn = () => {
     const success = await login();
     setGoogleLoading(false);
     if (success) {
-      router.replace('/(tabs)');
+      try {
+        const prefs = await account.getPrefs();
+        if (!prefs.age) {
+          Alert.alert(
+            'Welcome to Pump It!',
+            'Set up your health profile so the app can detect heart rate abnormalities accurately.',
+            [
+              { text: 'Later',       onPress: () => router.replace('/(tabs)/home') },
+              { text: 'Set Up Now',  onPress: () => router.replace('/(tabs)/profile') },
+            ]
+          );
+        } else {
+          router.replace('/(tabs)/home');
+        }
+      } catch {
+        router.replace('/(tabs)/home');
+      }
     } else {
       Alert.alert('Error', 'Google sign-in failed. Please try again.');
+      router.replace('/home');
     }
   };
 
@@ -27,7 +44,7 @@ const SignIn = () => {
 
         {/* Header */}
         <View className="px-6 pt-10 pb-5">
-          <Text className="text-white text-3xl font-bold">Welcome Back</Text>
+          <Text className="text-white text-3xl font-bold">Welcome!</Text>
           <Text className="text-zinc-400 mt-2">Sign in or create an account to continue</Text>
         </View>
 

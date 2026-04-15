@@ -30,7 +30,19 @@ const Login = () => {
     setLoading(true);
     try {
       await account.createEmailPasswordSession(email, password);
-      router.replace('/(tabs)');
+      const prefs = await account.getPrefs();
+      if (!prefs.age) {
+        Alert.alert(
+          'Health Profile Incomplete',
+          'Complete your health profile so the app can detect abnormalities accurately.',
+          [
+            { text: 'Later', onPress: () => router.replace('/(tabs)/home') },
+            { text: 'Set Up Now', onPress: () => router.replace('/(tabs)/profile') },
+          ]
+        );
+      } else {
+        router.replace('/(tabs)/home');
+      }
     } catch (error: any) {
       Alert.alert('Login Failed', error.message || 'Invalid credentials');
     } finally {
@@ -48,7 +60,7 @@ const Login = () => {
 
           {/* Header */}
           <View className="px-6 pt-10 pb-5">
-            <TouchableOpacity onPress={() => router.back()} className="mb-6">
+            <TouchableOpacity onPress={() => router.replace('/home')} className="mb-6">
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <Text className="text-white text-3xl font-bold">Login</Text>

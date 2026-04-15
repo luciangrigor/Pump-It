@@ -7,20 +7,20 @@ export default function RootLayout() {
   <BleProvider>
     <Stack>
       <Stack.Screen
-        name='signIn'
-        options={{ headerShown: false}}
+        name='home'
+        options={{ headerShown: false, animation: 'slide_from_left'}}
       />
       <Stack.Screen
         name='login'
-        options={{ headerShown: false}}
+        options={{ headerShown: false, animation: 'slide_from_right'}}
       />
       <Stack.Screen
         name='signUp'
-        options={{ headerShown: false}}
+        options={{ headerShown: false, animation: 'slide_from_right'}}
       />
       <Stack.Screen
         name="(tabs)"
-        options={{ headerShown: false}}
+        options={{ headerShown: false, animation: 'slide_from_bottom'}}
       />
     </Stack>
   </BleProvider>

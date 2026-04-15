@@ -25,6 +25,9 @@ export const account = new Account(client);
 
 export async function login() {
     try {
+        // Clear any existing session first
+        try { await account.deleteSessions(); } catch { }
+
         const redirectUri = Linking.createURL('/');
 
         const response = await account.createOAuth2Token(
@@ -41,10 +44,10 @@ export async function login() {
 
         if (browserResult.type != 'success') throw new Error ('Failed to login');
 
-        const url = new URL(browserResult.url);
+        const parsed = Linking.parse(browserResult.url);
 
-        const secret = url.searchParams.get('secret')?.toString();
-        const userId = url.searchParams.get('userId')?.toString();
+        const secret = parsed.queryParams?.secret?.toString();
+        const userId = parsed.queryParams?.userId?.toString();
 
         if (!secret || !userId) throw new Error('Failed to login');
 
@@ -75,7 +78,7 @@ export async function getUser() {
         const response = await account.get();
 
         if (response.$id){
-            const userAvatar = avatar.getInitials(XPathResult.name);
+            const userAvatar = avatar.getInitials(response.name);
             return {
                 ... response,
                 avatar: userAvatar.toString(),
