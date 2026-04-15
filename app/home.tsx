@@ -1,4 +1,4 @@
-import { images } from "@/constants/images";
+import { images } from '@/constants/images';
 import { account, login } from '@/lib/appwrite';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -17,18 +17,7 @@ const SignIn = () => {
     if (success) {
       try {
         const prefs = await account.getPrefs();
-        if (!prefs.age) {
-          Alert.alert(
-            'Welcome to Pump It!',
-            'Set up your health profile so the app can detect heart rate abnormalities accurately.',
-            [
-              { text: 'Later',       onPress: () => router.replace('/(tabs)/home') },
-              { text: 'Set Up Now',  onPress: () => router.replace('/(tabs)/profile') },
-            ]
-          );
-        } else {
-          router.replace('/(tabs)/home');
-        }
+        router.replace(prefs.onboardingDone ? '/(tabs)/home' : '/onboarding');
       } catch {
         router.replace('/(tabs)/home');
       }
@@ -42,19 +31,16 @@ const SignIn = () => {
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
-        {/* Header */}
+        {/* Heading */}
         <View className="px-6 pt-10 pb-5">
           <Text className="text-white text-3xl font-bold">Welcome!</Text>
           <Text className="text-zinc-400 mt-2">Sign in or create an account to continue</Text>
         </View>
 
-        {/* Logo */}
         <Image source={images.logo_big} className="w-full" resizeMode="contain" />
 
-        {/* Buttons */}
         <View className="px-6 py-6 gap-4">
-
-          {/* Login */}
+          {/*Login*/}
           <TouchableOpacity
             onPress={() => router.push('/login')}
             className="flex-row items-center justify-center py-4 rounded-xl border bg-filler-dark border-filler-light"
@@ -64,7 +50,7 @@ const SignIn = () => {
             <Text className="text-primary-light font-semibold text-lg">Login</Text>
           </TouchableOpacity>
 
-          {/* Sign Up */}
+          {/*Sign Up*/}
           <TouchableOpacity
             onPress={() => router.push('/signUp')}
             className="flex-row items-center justify-center py-4 rounded-xl border bg-primary border-primary-light"
@@ -74,14 +60,14 @@ const SignIn = () => {
             <Text className="text-white font-bold text-lg">Sign Up</Text>
           </TouchableOpacity>
 
-          {/* Divider */}
+          {/* divider */}
           <View className="flex-row items-center my-2">
             <View className="flex-1 h-px bg-filler-light" />
             <Text className="text-zinc-500 mx-4 text-sm">or</Text>
             <View className="flex-1 h-px bg-filler-light" />
           </View>
 
-          {/* Google */}
+          {/*Google*/}
           <TouchableOpacity
             onPress={handleGoogleLogin}
             disabled={googleLoading}
@@ -97,8 +83,8 @@ const SignIn = () => {
               </>
             )}
           </TouchableOpacity>
-
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );
