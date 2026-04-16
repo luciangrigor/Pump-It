@@ -40,7 +40,7 @@ const SignUp = () => {
       <View className="flex-1 px-6 pt-10">
 
         {/* back + title */}
-        <TouchableOpacity onPress={() => router.replace('/home')} className="mb-6">
+        <TouchableOpacity onPress={() => router.replace('/welcome')} className="mb-6">
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text className="text-white text-3xl font-bold">Create Account</Text>

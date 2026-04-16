@@ -1,14 +1,23 @@
-import React , { useEffect }from 'react';
-import { View, Text } from 'react-native';
+/*
+ * app/(tabs)/monitor.tsx
+ *
+ * Same UI as before.  Only change: subscribes to CHAR_PPG_UUID and pushes
+ * samples into ppgBuffer via the appendPPG utility.
+ */
+
+import React, { useEffect } from 'react';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useBle } from '../../context/BleContext';
-
-const SERVICE_UUID = "e3b8e649-fb8a-45eb-a81b-d05d8c96681e";
-const CHAR_HR_UUID = "cf19a6c7-c16d-47c3-bfd9-4a1020bb79e4";
-const CHAR_OXY_UUID = "cf19a6c7-c16d-47c3-bfd9-4a1020bb79e5";
-const CHAR_STATUS_UUID = "cf19a6c7-c16d-47c3-bfd9-4a1020bb79e6";
-
-
+import {
+  appendPPG,
+  CHAR_HR_UUID,
+  CHAR_OXY_UUID,
+  CHAR_PPG_UUID,
+  CHAR_STATUS_UUID,
+  decodePPGSample,
+  SERVICE_UUID,
+  useBle,
+} from '@/context/BleContext';
 
 const Monitor = () => {
   const { connectedDevice, data, setData } = useBle();
@@ -16,9 +25,9 @@ const Monitor = () => {
   useEffect(() => {
     if (!connectedDevice) return;
 
-    // Monitor Heart Rate
-    const hrSubscription = connectedDevice.monitorCharacteristicForService(
-      SERVICE_UUID, CHAR_HR_UUID, (error, char) => {
+    // ── Heart rate ────────────────────────────────────────────────────────────
+    const hrSub = connectedDevice.monitorCharacteristicForService(
+      SERVICE_UUID, CHAR_HR_UUID, (_err, char) => {
         if (char?.value) {
           const decoded = atob(char.value);
           setData(prev => ({ ...prev, hr: decoded }));
@@ -26,52 +35,69 @@ const Monitor = () => {
       }
     );
 
-    // Montior Oxygen
-    const oxySubscription = connectedDevice.monitorCharacteristicForService(
-      SERVICE_UUID, CHAR_OXY_UUID, (error, char) => {
+    // ── SpO2 ──────────────────────────────────────────────────────────────────
+    const oxySub = connectedDevice.monitorCharacteristicForService(
+      SERVICE_UUID, CHAR_OXY_UUID, (_err, char) => {
         if (char?.value) {
-          const decoded = atob(char.value)
-          setData(prev => ({...prev, oxy: decoded }));
+          const decoded = atob(char.value);
+          setData(prev => ({ ...prev, oxy: decoded }));
         }
       }
     );
 
-    // Monitor Status
-    const statusSubscription = connectedDevice.monitorCharacteristicForService(
-      SERVICE_UUID, CHAR_STATUS_UUID, (error, char) => {
+    // ── Status ────────────────────────────────────────────────────────────────
+    const statusSub = connectedDevice.monitorCharacteristicForService(
+      SERVICE_UUID, CHAR_STATUS_UUID, (_err, char) => {
         if (char?.value) {
-          const decoded = atob(char.value)
-          setData(prev => ({...prev, status: decoded }));
-       }
+          const decoded = atob(char.value);
+          setData(prev => ({ ...prev, status: decoded }));
+        }
+      }
+    );
+
+    // ── Raw PPG (NEW) ─────────────────────────────────────────────────────────
+    const ppgSub = connectedDevice.monitorCharacteristicForService(
+      SERVICE_UUID, CHAR_PPG_UUID, (_err, char) => {
+        if (char?.value) {
+          const sample = decodePPGSample(char.value);   // uint16 LE → number
+          setData(prev => ({
+            ...prev,
+            ppgBuffer: appendPPG(prev.ppgBuffer, sample),
+          }));
+        }
       }
     );
 
     return () => {
-      hrSubscription.remove();
-      oxySubscription.remove();
-      statusSubscription.remove();
+      hrSub.remove();
+      oxySub.remove();
+      statusSub.remove();
+      ppgSub.remove();
     };
   }, [connectedDevice, setData]);
-  
-  return (    
+
+  return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="px-6 pt-10 pb-5">
         <Text className="text-white text-3xl font-bold">Monitor</Text>
-        <Text className="text-zinc-300 text-1xl mt-2">
+        <Text className="text-zinc-300 text-xl mt-2">
           Heart Rate: <Text className="text-primary-light">{data.hr} BPM</Text>
         </Text>
-        <Text className="text-zinc-300 text-1xl mt-2">
+        <Text className="text-zinc-300 text-xl mt-2">
           Oxygen: <Text className="text-primary-light">{data.oxy}%</Text>
         </Text>
-        <Text className="text-zinc-300 text-1xl mt-2">
+        <Text className="text-zinc-300 text-xl mt-2">
           Status: <Text className="text-primary-light">{data.status}</Text>
+        </Text>
+        <Text className="text-zinc-500 text-sm mt-4">
+          PPG samples buffered: {data.ppgBuffer.length}
         </Text>
         {!connectedDevice && (
           <Text className="text-red-400 mt-10">No device connected. Please go to Search.</Text>
         )}
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 export default Monitor;

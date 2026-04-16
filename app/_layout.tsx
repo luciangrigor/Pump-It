@@ -6,11 +6,11 @@ export default function RootLayout() {
   return (
     <BleProvider>
       <Stack>
-        <Stack.Screen name="home"       options={{ headerShown: false, animation: 'slide_from_left' }} />
-        <Stack.Screen name="login"      options={{ headerShown: false, animation: 'slide_from_right' }} />
-        <Stack.Screen name="signUp"     options={{ headerShown: false, animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'slide_from_bottom', gestureEnabled: false }} />
-        <Stack.Screen name="(tabs)"     options={{ headerShown: false, animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="welcome"       options={{ headerShown: false, animation: 'slide_from_left' }} />
+        <Stack.Screen name="login"         options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="signUp"        options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="onboarding"    options={{ headerShown: false, animation: 'slide_from_bottom', gestureEnabled: false }} />
+        <Stack.Screen name="(tabs)"        options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       </Stack>
     </BleProvider>
   );

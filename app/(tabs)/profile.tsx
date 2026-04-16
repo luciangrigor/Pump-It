@@ -1,9 +1,9 @@
 import { account, getUser, logout } from '@/lib/appwrite';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRouter } from 'expo-router';
-import { CommonActions, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Health = { age: string; sex: string; height: string; weight: string; restingHR: string; activity: string; smoker: string };
@@ -18,7 +18,6 @@ const InfoRow = ({ label, value, last = false }: { label: string; value: string;
 
 const Profile = () => {
   const router     = useRouter();
-  const navigation = useNavigation();
   const [user, setUser]             = useState<any>(null);
   const [health, setHealth]         = useState<Health>(EMPTY);
   const [loading, setLoading]       = useState(true);
@@ -57,10 +56,7 @@ const Profile = () => {
         onPress: async () => {
           setLoggingOut(true);
           await logout();
-          // root reset
-          let nav: any = navigation;
-          while (nav.getParent?.()) nav = nav.getParent();
-          nav.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'home' }] }));
+          router.replace('/welcome');
         },
       },
     ]);
@@ -83,21 +79,6 @@ const Profile = () => {
           </View>
         ) : (
           <View className="px-6 gap-4">
-
-            {/* avatar */}
-            <View className="items-center py-4">
-              {user?.avatar ? (
-                <Image source={{ uri: user.avatar }} className="w-24 h-24 rounded-full" />
-              ) : (
-                <View className="w-24 h-24 rounded-full bg-primary items-center justify-center">
-                  <Text className="text-white text-3xl font-bold">
-                    {user?.name?.charAt(0)?.toUpperCase() ?? '?'}
-                  </Text>
-                </View>
-              )}
-              <Text className="text-white text-2xl font-bold mt-4">{user?.name ?? 'Unknown'}</Text>
-              <Text className="text-zinc-400 mt-1">{user?.email ?? ''}</Text>
-            </View>
 
             {/* account */}
             <View className="bg-filler-dark border border-filler-light rounded-xl overflow-hidden">

@@ -74,7 +74,10 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": "pumpit://",
+        "initialRouteName": "welcome"
+      },
       "eas": {
         "projectId": "35db74f6-e609-48b0-91b4-13babf39c574"
       }

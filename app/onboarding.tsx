@@ -15,14 +15,13 @@ const EMPTY: Health    = { age: '', sex: '', height: '', weight: '', restingHR: 
 function validate(h: Health): string | null {
   const age = parseInt(h.age),  ht = parseFloat(h.height);
   const wt  = parseFloat(h.weight), hr = parseInt(h.restingHR);
-  if (h.age       && (isNaN(age) || age < 1  || age > 120)) return 'Age must be between 1 and 120.';
-  if (h.height    && (isNaN(ht)  || ht  < 50 || ht  > 300)) return 'Height must be between 50 and 300 cm.';
-  if (h.weight    && (isNaN(wt)  || wt  < 10 || wt  > 500)) return 'Weight must be between 10 and 500 kg.';
-  if (h.restingHR && (isNaN(hr)  || hr  < 20 || hr  > 250)) return 'Resting HR must be between 20 and 250 BPM.';
+  if ((h.age       && (isNaN(age) || age < 1  || age > 120)) || 
+      (h.height    && (isNaN(ht)  || ht  < 50 || ht  > 300)) || 
+      (h.weight    && (isNaN(wt)  || wt  < 10 || wt  > 500)) ||
+      (h.restingHR && (isNaN(hr)  || hr  < 20 || hr  > 250))) 
+     return "Unrealistic inputs."
   return null;
 }
-
-// ─── rows ────────────────────────────────────────────────────────────────────
 
 const InputRow = ({ label, value, onChange, keyboardType = 'default', placeholder, last = false }: {
   label: string; value: string; onChange: (v: string) => void;
@@ -136,7 +135,7 @@ const Onboarding = () => {
 
   if (loading) return (
     <SafeAreaView className="flex-1 bg-background items-center justify-center">
-      <ActivityIndicator color="#db2777" size="large" />
+      <ActivityIndicator color="primary" size="large" />
     </SafeAreaView>
   );
 

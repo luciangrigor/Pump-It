@@ -23,7 +23,7 @@ const SignIn = () => {
       }
     } else {
       Alert.alert('Error', 'Google sign-in failed. Please try again.');
-      router.replace('/home');
+      router.replace('/welcome');
     }
   };
 
@@ -31,7 +31,7 @@ const SignIn = () => {
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
-        {/* Heading */}
+        {/*Heading*/}
         <View className="px-6 pt-10 pb-5">
           <Text className="text-white text-3xl font-bold">Welcome!</Text>
           <Text className="text-zinc-400 mt-2">Sign in or create an account to continue</Text>
@@ -60,7 +60,7 @@ const SignIn = () => {
             <Text className="text-white font-bold text-lg">Sign Up</Text>
           </TouchableOpacity>
 
-          {/* divider */}
+          {/*Line */}
           <View className="flex-row items-center my-2">
             <View className="flex-1 h-px bg-filler-light" />
             <Text className="text-zinc-500 mx-4 text-sm">or</Text>
