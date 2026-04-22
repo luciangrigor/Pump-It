@@ -23,7 +23,6 @@ const SignIn = () => {
       }
     } else {
       Alert.alert('Error', 'Google sign-in failed. Please try again.');
-      router.replace('/welcome');
     }
   };
 
@@ -42,7 +41,7 @@ const SignIn = () => {
         <View className="px-6 py-6 gap-4">
           {/*Login*/}
           <TouchableOpacity
-            onPress={() => router.push('/login')}
+            onPress={() => router.push('/(auth)/login')}
             className="flex-row items-center justify-center py-4 rounded-xl border bg-filler-dark border-filler-light"
             activeOpacity={0.8}
           >
@@ -52,7 +51,7 @@ const SignIn = () => {
 
           {/*Sign Up*/}
           <TouchableOpacity
-            onPress={() => router.push('/signUp')}
+            onPress={() => router.push('/(auth)/signUp')}
             className="flex-row items-center justify-center py-4 rounded-xl border bg-primary border-primary-light"
             activeOpacity={0.8}
           >

@@ -33,7 +33,7 @@ const Login = () => {
 
           {/* back + title */}
           <View className="px-6 pt-10 pb-5">
-            <TouchableOpacity onPress={() => router.replace('/welcome')} className="mb-6">
+            <TouchableOpacity onPress={() => router.back()} className="mb-6">
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <Text className="text-white text-3xl font-bold">Login</Text>

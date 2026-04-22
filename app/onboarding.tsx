@@ -33,7 +33,7 @@ const InputRow = ({ label, value, onChange, keyboardType = 'default', placeholde
       value={value} onChangeText={onChange}
       placeholder={placeholder ?? '—'} placeholderTextColor="#52525b"
       keyboardType={keyboardType}
-      className="text-white font-medium text-right" style={{ minWidth: 80 }}
+      className="text-white font-medium text-right min-w-20"
     />
   </View>
 );
@@ -47,7 +47,7 @@ const PickerRow = ({ label, value, options, onSelect, last = false }: {
     <View className={last && !expanded ? '' : 'border-b border-filler-light'}>
       <TouchableOpacity onPress={() => setExpanded(e => !e)} className="flex-row items-center px-4 py-4" activeOpacity={0.7}>
         <Text className="text-zinc-400 flex-1">{label}</Text>
-        <View className="flex-row items-center" style={{ gap: 6 }}>
+        <View className="flex-row items-center gap-1.5">
           <Text className="text-primary-light font-medium">{value || 'Select'}</Text>
           <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color="#ec4899" />
         </View>
@@ -61,11 +61,10 @@ const PickerRow = ({ label, value, options, onSelect, last = false }: {
               <TouchableOpacity
                 key={opt}
                 onPress={() => { onSelect(opt); setExpanded(false); }}
-                className={`flex-row items-center px-6 py-3 ${i < options.length - 1 ? 'border-b border-filler-light' : ''}`}
-                style={{ backgroundColor: selected ? 'rgba(219,39,119,0.08)' : 'transparent' }}
+                className={`flex-row items-center px-6 py-3 ${i < options.length - 1 ? 'border-b border-filler-light' : ''} ${selected ? 'bg-primary/10' : ''}`}
                 activeOpacity={0.6}
               >
-                <Text style={{ flex: 1, color: selected ? '#ec4899' : '#d4d4d8', fontSize: 15, fontWeight: selected ? '600' : '400' }}>
+                <Text className={`flex-1 text-base ${selected ? 'text-primary-light font-semibold' : 'text-zinc-200 font-normal'}`}>
                   {opt}
                 </Text>
                 {selected && <Ionicons name="checkmark" size={18} color="#ec4899" />}

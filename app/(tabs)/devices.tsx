@@ -21,10 +21,9 @@ const Devices = () => {
 
   // BlueTooth Hooks
   const router = useRouter();
-  const {setConnectedDevice } = useBle();
+  const { setConnectedDevice, connectedDevice } = useBle();
   const [isScanning, setIsScanning] = useState(false);
   const [devices, setDevices] = useState<Device[]>([]);
-  const [connectedDeviceId, setConnectedDeviceId] = useState<string | null>(null);
   const requestBluetoothPermission = async () =>{
 
     // For iOS
@@ -83,14 +82,13 @@ const Devices = () => {
       }
     }
 
-    // Logic to prevent any dublicates
     manager.startDeviceScan(null, null, (error, device) =>{
       if (error){
         console.log(error);
         setIsScanning(false);
         return;
       }
-      if (device && device.name){
+      if (device && device.name === 'Pump It'){
         setDevices((prevDevices) => {
           if (!prevDevices.some(d => d.id === device.id)){
             return [...prevDevices, device];
@@ -110,52 +108,45 @@ const Devices = () => {
   // Connecting to a device
   const connectToDevice = async (device: Device) => {
     try {
-      // Stop scanning
       manager.stopDeviceScan();
       setIsScanning(false);
 
-      // Attempting to connect to device and discover services
+      // Cancel any stale connection first so we get a clean GATT session
+      try { await manager.cancelDeviceConnection(device.id); } catch {}
+
       console.log(`Connecting to ${device.name}...`);
-      const connectedDevice = await device.connect();
-      await connectedDevice.discoverAllServicesAndCharacteristics();
+      const connected = await manager.connectToDevice(device.id, { autoConnect: false, requestMTU: 512, timeout: 8000 });
+      await connected.discoverAllServicesAndCharacteristics();
 
-      setConnectedDevice(connectedDevice);
-      setConnectedDeviceId(device.id);
-      
-      // Prints
-      Alert.alert("Success", `Connected to ${device.name}`);
-      console.log("Connected.");
+      setConnectedDevice(connected);
 
+      Alert.alert('Success', `Connected to ${device.name}`);
+      console.log('Connected.');
       router.push('/(tabs)/monitor');
 
     } catch (error) {
-      console.log("Connection failed", error);
-      Alert.alert("Error", "Failed to connect to device");
+      console.log('Connection failed', error);
+      Alert.alert('Error', 'Failed to connect to device');
     }
   }
 
   // Disconnect from a device
   const disconnectFromDevice = async (device: Device) => {
-    setConnectedDeviceId(null);
     try {
-      console.log('Disconnecting...');
       await manager.cancelDeviceConnection(device.id);
-
-      // Prints
-      console.log("Disconnected.")
-      Alert.alert("Disconnected", `Disconnected from ${device.name}`);
-      
-    } catch (error){
-      console.log("Disconnect error:", error);
-      Alert.alert("Error", "Failed to disconnect.");
+    } catch (error) {
+      console.log('Disconnect error (ignored)', error);
     }
+    setConnectedDevice(null);
+    setDevices([]);
+    Alert.alert('Disconnected', `Disconnected from ${device.name}`);
   }
 
   // UI for each row of device
   const renderDeviceItem = ({ item } : { item: Device }) => {
 
     // Style components
-    const isConnected = connectedDeviceId === item.id;
+    const isConnected = connectedDevice?.id === item.id;
     const containerStyle = isConnected ? "bg-success-dark border-success-light" : "bg-filler-light border-filler-dark";
     const buttonStyle = isConnected ? "bg-success" : "bg-primary";
     const buttonText = isConnected ? "Disconnect" : "Connect";
@@ -181,43 +172,38 @@ const Devices = () => {
 
   // UI
   return (
-
-    // Header Text
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-6 pt-10 pb-5">
+      <View className="px-6 pt-10 pb-3">
         <Text className="text-white text-3xl font-bold">Search Devices</Text>
         <Text className="text-zinc-400 mt-2">Found {devices.length} devices</Text>
       </View>
 
-    {/* Button for starting and stopping the scan */}
+    {/* Scan button */}
       <View className="px-6 py-6">
-        <TouchableOpacity 
-          onPress={isScanning ? stopScan : startScan}
-          className={`flex-row items-center justify-center py-4 rounded-xl border ${
-            isScanning 
-              ? "bg-filler-dark border-fonts-light" 
-              : "bg-primary border-primary-light"
-          }`}
-        >
-          {isScanning ? (
-            <>
-              <ActivityIndicator color="#ec4899" className="mr-3" />
-              <Text className="text-primary-light font-semibold text-lg">Stop Scanning</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="search" size={20} color="white" style={{ marginRight: 8 }} />
-              <Text className="text-white font-bold text-lg">Start Scan</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+        <TouchableOpacity
+            onPress={isScanning ? stopScan : startScan}
+            activeOpacity={0.7}
+            className={`flex-row items-center justify-center py-4 rounded-xl border ${isScanning ? 'bg-filler-dark border-primary' : 'bg-primary border-primary-light'}`}
+          >
+            {isScanning ? (
+              <>
+                <ActivityIndicator color="#ec4899" style={{ marginRight: 8 }} />
+                <Text className="text-primary-light font-semibold text-lg">Stop Scanning</Text>
+              </>
+            ) : (
+              <>
+                <Ionicons name="search" size={20} color="white" style={{ marginRight: 8 }} />
+                <Text className="text-white font-bold text-lg">Start Scan</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
 
     {/* FlatList used for displaying each device found */}
       <View className="flex-1 px-4">
         <FlatList
           data={devices}
-          extraData={connectedDeviceId}
+          extraData={connectedDevice?.id}
           keyExtractor={(item) => item.id}
           renderItem={renderDeviceItem}
           contentContainerStyle={{ paddingBottom: 100}}

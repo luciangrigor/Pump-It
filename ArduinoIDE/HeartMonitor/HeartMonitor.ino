@@ -30,17 +30,17 @@ bool deviceConnected = false;
 
 class MyServerCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer) { deviceConnected = true; };
-  void onDisconnect(BLEServer* pServer) { deviceConnected = false; };
+  void onDisconnect(BLEServer* pServer) { deviceConnected = false; BLEDevice::startAdvertising(); };
 };
 
 // Reset pin, MFIO pin
 int resPin = 4;
 int mfioPin = 5;
 
-int algoRange = 100;    // ADC Range (0-100%)
-int algoStepSize = 10;  // Step Size (0-100%)
-int algoSens = 25;      // Sensitivity (0-100%)
-int algoSamp = 5;       // Number of samples to average (0-255)
+int algoRange = 70;    // ADC Range (0-100%)
+int algoStepSize = 5;  // Step Size (0-100%)
+int algoSens = 50;      // Sensitivity (0-100%)
+int algoSamp = 3;       // Number of samples to average (0-255)
 
 SparkFun_Bio_Sensor_Hub bioHub(resPin, mfioPin); 
 
@@ -144,30 +144,35 @@ void loop(){
   
     body = bioHub.readBpm();
 
-    // Sending only the good data out
+    // For Debugging
     if (body.confidence >= 80){
-      // Debug prints
       Serial.print("Heartrate: ");  Serial.println(body.heartRate);
       Serial.print("Confidence: "); Serial.println(body.confidence); 
       Serial.print("Oxygen: ");     Serial.println(body.oxygen); 
       Serial.print("Status: ");     Serial.println(body.status);
       
-      // Sending Data
       if (deviceConnected) {
-        // Send Heart Rate
+        // Heart Rate
         hrateCharacteristics->setValue(String(body.heartRate));
         hrateCharacteristics->notify();
-        // Send Oxygen
+        // Oxygen
         oxygenCharacteristics->setValue(String(body.oxygen));
         oxygenCharacteristics->notify();
-        // Send Status
+        // Status
         statusCharacteristics->setValue(String(body.status));
         statusCharacteristics->notify();
 
         Serial.println("Data Sent");
       }
-    } else if (body.status < 3 && body.status > 0) Serial.println("Object detected. Analyzing...");
+    } else if (body.status < 3 && body.status > 0) { 
+      // Log Debugging
+      Serial.println("Object detected. Analyzing...");
+
+      if (deviceConnected) {
+        statusCharacteristics->setValue(String(body.status));
+        statusCharacteristics->notify();
+      }
+    } 
    
-    delay(200); 
-  
+    delay(200);
 }

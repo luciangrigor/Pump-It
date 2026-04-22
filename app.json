@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Pump_It",
+    "name": "Pump It",
     "slug": "Pump_It",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/logo.png",
     "backgroundColor": "#190408",
-    "scheme": "pumpit",
+    "scheme": ["pumpit", "appwrite-callback-69d8ef0400371368e197"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -75,8 +75,7 @@
     },
     "extra": {
       "router": {
-        "origin": "pumpit://",
-        "initialRouteName": "welcome"
+        "origin": "pumpit://"
       },
       "eas": {
         "projectId": "35db74f6-e609-48b0-91b4-13babf39c574"

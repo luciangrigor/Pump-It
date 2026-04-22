@@ -1,10 +1,13 @@
 import { account, getUser, logout } from '@/lib/appwrite';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { BleManager } from 'react-native-ble-plx';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBle } from '../../context/BleContext';
+
+const bleManager = new BleManager();
 
 type Health = { age: string; sex: string; height: string; weight: string; restingHR: string; activity: string; smoker: string };
 const EMPTY: Health = { age: '', sex: '', height: '', weight: '', restingHR: '', activity: '', smoker: '' };
@@ -18,6 +21,7 @@ const InfoRow = ({ label, value, last = false }: { label: string; value: string;
 
 const Profile = () => {
   const router     = useRouter();
+  const { connectedDevice, setConnectedDevice } = useBle();
   const [user, setUser]             = useState<any>(null);
   const [health, setHealth]         = useState<Health>(EMPTY);
   const [loading, setLoading]       = useState(true);
@@ -55,8 +59,12 @@ const Profile = () => {
         text: 'Logout', style: 'destructive',
         onPress: async () => {
           setLoggingOut(true);
+          if (connectedDevice) {
+            try { await bleManager.cancelDeviceConnection(connectedDevice.id); } catch {}
+            setConnectedDevice(null);
+          }
           await logout();
-          router.replace('/welcome');
+          router.replace('/(auth)' as any);
         },
       },
     ]);

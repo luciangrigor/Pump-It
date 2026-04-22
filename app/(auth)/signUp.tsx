@@ -29,7 +29,6 @@ const SignUp = () => {
       router.replace('/onboarding');
     } catch (error: any) {
       Alert.alert('Sign Up Failed', error.message || 'Something went wrong');
-      router.replace('/signUp');
     } finally {
       setLoading(false);
     }
@@ -40,7 +39,7 @@ const SignUp = () => {
       <View className="flex-1 px-6 pt-10">
 
         {/* back + title */}
-        <TouchableOpacity onPress={() => router.replace('/welcome')} className="mb-6">
+        <TouchableOpacity onPress={() => router.back()} className="mb-6">
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text className="text-white text-3xl font-bold">Create Account</Text>

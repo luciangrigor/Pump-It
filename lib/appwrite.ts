@@ -1,11 +1,13 @@
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
-import { Account, Avatars, Client, OAuthProvider } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, ID, OAuthProvider, Query } from 'react-native-appwrite';
 
 export const config = {
-  platform:  'com.grigor.pumpit',
-  endpoint:  process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!,
-  projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
+  platform:     'com.grigor.pumpit',
+  endpoint:     process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!,
+  projectId:    process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
+  databaseId:   process.env.EXPO_PUBLIC_APPWRITE_DATABASE!,
+  collectionId: process.env.EXPO_PUBLIC_APPWRITE_COLLECTION!,
 };
 
 const client = new Client()
@@ -13,16 +15,49 @@ const client = new Client()
   .setProject(config.projectId)
   .setPlatform(config.platform);
 
-export const avatar  = new Avatars(client);
-export const account = new Account(client);
+export const avatar    = new Avatars(client);
+export const account   = new Account(client);
+export const databases = new Databases(client);
+
+export type SessionDoc = {
+  userId:    string;
+  startTime: string;
+  endTime:   string;
+  avgHr:     number;
+  minHr:     number;
+  maxHr:     number;
+  avgOxy:    number;
+  anomalies: number;
+};
+
+export async function saveSession(doc: SessionDoc): Promise<void> {
+  await databases.createDocument(
+    config.databaseId,
+    config.collectionId,
+    ID.unique(),
+    doc,
+  );
+}
+
+export async function loadSessions(userId: string): Promise<SessionDoc[]> {
+  const res = await databases.listDocuments(
+    config.databaseId,
+    config.collectionId,
+    [Query.equal('userId', userId), Query.orderDesc('startTime'), Query.limit(100)],
+  );
+  return res.documents as unknown as SessionDoc[];
+}
 
 export async function login() {
   try {
-    // clear session
     try { await account.deleteSessions(); } catch {}
 
-    const redirectUri = Linking.createURL('/');
-    const response    = await account.createOAuth2Token(OAuthProvider.Google, redirectUri);
+    const redirectUri = `appwrite-callback-${config.projectId}://`;
+    const response    = account.createOAuth2Token({
+      provider: OAuthProvider.Google,
+      success:  redirectUri,
+      failure:  redirectUri,
+    });
     if (!response) throw new Error('No response');
 
     const browser = await WebBrowser.openAuthSessionAsync(response.toString(), redirectUri);
@@ -33,7 +68,7 @@ export async function login() {
     const userId = params.userId?.toString();
     if (!secret || !userId) throw new Error('Missing params');
 
-    const session = await account.createSession(userId, secret);
+    const session = await account.createSession({ userId, secret });
     if (!session) throw new Error('No session');
 
     return true;
@@ -57,9 +92,8 @@ export async function getUser() {
   try {
     const res = await account.get();
     if (!res.$id) return null;
-    return { ...res, avatar: avatar.getInitials(res.name).toString() };
-  } catch (error) {
-    console.error(error);
+    return { ...res, avatar: avatar.getInitialsURL(res.name).toString() };
+  } catch {
     return null;
   }
 }
